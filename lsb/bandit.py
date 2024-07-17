@@ -1,5 +1,6 @@
 import math
 import numpy as np
+import typing as t
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
@@ -37,7 +38,7 @@ class ActionResult:
 class ProblemHyperparams:
     """Hyperparameters of the problem itself, not the algorithm."""
     dimension: int
-    no_arms: int | math.inf  # This type hint is not correct, but indicates the intent
+    no_arms: int = math.inf  # This type hint is wrong but it's really hard to type hint integer or infinity correctly
     subgaussianness: float = 1.0
     parameter_norm_bound: float = 1.0
 
