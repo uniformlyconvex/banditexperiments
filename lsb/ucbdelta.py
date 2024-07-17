@@ -1,9 +1,12 @@
 import numpy as np
 
+from dataclasses import dataclass
+
 from lsb.algorithm import Algorithm, AlgorithmHyperparams
 from lsb.bandit import ActionResult, DecisionSetBandit
 from lsb.constraints import FiniteSubset
 
+@dataclass
 class UCBHyperparams(AlgorithmHyperparams):
     delta: float = 0.01
 

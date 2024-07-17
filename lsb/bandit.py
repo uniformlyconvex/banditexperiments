@@ -56,6 +56,12 @@ class DecisionSetBandit(ABC):
         self._problem_hyperparams = problem_hyperparams
 
         self._hidden_param = self.generate_hidden_param()
+
+        # Run any post-init code
+        try:
+            self.__post_init__()
+        except AttributeError:
+            pass
     
     @property
     def problem_hyperparams(self) -> ProblemHyperparams:
