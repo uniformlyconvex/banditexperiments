@@ -5,10 +5,15 @@ from lsb.bandit import ActionResult, DecisionSetBandit
 from lsb.constraints import FiniteSubset
 
 class TSHyperparams(AlgorithmHyperparams):
+    """Thompson sampling hyperparameters."""
     delta: float = 0.01
 
 
 class TSBandit(DecisionSetBandit):  
+    """
+    A bandit that chooses finitely-many arms on the unit sphere.
+    Reward noise is Gaussian with given subgaussianness.
+    """
     def sample_noise(self) -> float:
         return self.rng.normal(loc=0.0, scale=self.problem_hyperparams.subgaussianness)
     
@@ -25,6 +30,7 @@ class TSBandit(DecisionSetBandit):
     
  
 class TS(Algorithm):
+    """Thompson sampling algorithm."""
     def __post_init__(self):
         self._action_history = np.array([])
         self._reward_history = np.array([])
@@ -40,18 +46,25 @@ class TS(Algorithm):
     
     @property
     def t(self) -> int:
+        """The current time step."""
         return self._t
     
     @property
     def theta_estimate(self) -> np.ndarray:
+        """The current estimate of the hidden parameter."""
         return self._posterior_mean
 
     def get_action(self, decision_set: FiniteSubset) -> np.ndarray:
+        """
+        Choose an action from the decision set by drawing from the posterior
+        and maximising the inner product.
+        """
         sample = self.rng.multivariate_normal(self._posterior_mean, self._posterior_covariance)
         action = max(decision_set.points, key=lambda point: np.dot(point, sample))
         return action
 
     def update(self, result: ActionResult) -> None:
+        """Update action history/reward history and posterior."""
         self._action_history = np.vstack((self._action_history, result.action)) if self._action_history.size else result.action.reshape(1, -1)
         self._reward_history = np.append(self._reward_history, result.reward)
 

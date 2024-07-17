@@ -9,13 +9,17 @@ from lsb.constraints import ConstrainedSubset, UnitSphere, FiniteSubset
 from lsb.utils import maximise_inner_product, regularised_lst_sqrs
 
 
-@dataclass
 class OFULHyperparams(AlgorithmHyperparams):
+    """Hyperparameters for the OFUL algorithm."""
     reg_param: float = 0.01  # A regularisation parameter used for regularised least-squares
     delta: float = 0.01  # The confidence level of the confidence set
 
 
-class OFULBandit(DecisionSetBandit):   
+class OFULBandit(DecisionSetBandit):
+    """
+    A bandit that provides a decision set that is a constrained subset of R^d.
+    Noise is Gaussian with given subgaussianness.
+    """
     def sample_noise(self) -> float:
         return self.rng.normal(loc=0.0, scale=self.problem_hyperparams.subgaussianness)
     
@@ -34,6 +38,7 @@ class OFULBandit(DecisionSetBandit):
 
 
 class OFUL(Algorithm):
+    """LinUCB (OFUL) algorithm"""
     def __post_init__(self):
         self._action_history = np.array([])
         self._reward_history = np.array([])
@@ -49,6 +54,7 @@ class OFUL(Algorithm):
 
     @property
     def t(self) -> int:
+        """The current time step."""
         return self._t
         
     def get_action(self, decision_set: ConstrainedSubset | FiniteSubset) -> np.ndarray:
@@ -58,6 +64,7 @@ class OFUL(Algorithm):
         return best_action
     
     def update(self, result: ActionResult) -> None:
+        """Update action history/reward history and confidence set."""
         self._action_history = (
             np.vstack((self._action_history, result.action)) if self._action_history.size
             else result.action.reshape(1, -1)
@@ -76,6 +83,7 @@ class OFUL(Algorithm):
 
     @staticmethod
     def compute_V_t(X_t: np.ndarray, lmbda: float) -> np.ndarray:
+        """Initially implemented separately for testing."""
         complicated_part = X_t.T @ X_t
         V = lmbda * np.eye(complicated_part.shape[0])
         return V + complicated_part
@@ -103,6 +111,7 @@ class OFUL(Algorithm):
         theta_estimate = regularised_lst_sqrs(X_t=action_history, y_t=reward_history, lmbda=reg_param)
         
         def offset_norm(theta: np.ndarray) -> float:
+            """Given theta, returns ||theta_estimate - theta||_V_t."""
             arg = theta_estimate - theta
             return np.sqrt(arg.T @ V_t @ arg)
 

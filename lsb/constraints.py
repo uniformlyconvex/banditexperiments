@@ -6,16 +6,20 @@ import typing as t
 Con = t.TypeVar('Con', opt.NonlinearConstraint, opt.LinearConstraint, opt.Bounds)
 Constraints: t.TypeAlias = t.Iterable[opt.NonlinearConstraint | opt.LinearConstraint | opt.Bounds]
 
-def does_constraint_hold(constraint: opt.NonlinearConstraint | opt.LinearConstraint | opt.Bounds, item: np.ndarray) -> bool:
+def does_constraint_hold(constraint: Con, item: np.ndarray) -> bool:
+    """Check if a constraint holds for a given item."""
     if isinstance(constraint, opt.NonlinearConstraint):
+        # lb <= f(item) <= ub ?
         res = constraint.fun(item)
         return np.all(constraint.lb <= res) and np.all(res <= constraint.ub)
     
     if isinstance(constraint, opt.LinearConstraint):
+        # lb <= A @ item <= ub ?
         prod = constraint.A @ item
         return np.all(constraint.lb <= prod) and np.all(prod <= constraint.ub)
     
     if isinstance(constraint, opt.Bounds):
+        # lb <= item <= ub ?
         return np.all(constraint.lb <= item) and np.all(item <= constraint.ub)
 
 def _extend_bounds(lb: np.ndarray, ub: np.ndarray, dimension: int, extend_end: bool=True) -> t.Tuple[np.ndarray, np.ndarray]:
@@ -64,7 +68,10 @@ def _extend_constraint(constraint: Con, dimension: int, extend_end: bool=True) -
     
 
 def _bounds_to_linear(bounds: opt.Bounds) -> opt.LinearConstraint:
-    """Converts a bounds object to a linear constraint."""
+    """
+    Converts a bounds object to a linear constraint.
+    Necessary since some optimisation functions support LinearConstraints but not Bounds.
+    """
     A = np.eye(bounds.lb.shape[0])
     return opt.LinearConstraint(A, bounds.lb, bounds.ub)
 

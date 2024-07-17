@@ -10,6 +10,7 @@ from lsb.constraints import ConstrainedSubset, FiniteSubset, _Singleton, _extend
 
 @dataclass
 class OptimalEstimate:
+    """Holds the optimal estimate of the inner product between two sets."""
     x: np.ndarray
     theta: np.ndarray
     inner_product: float

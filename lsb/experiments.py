@@ -9,6 +9,7 @@ from lsb.ts import TSBandit, TSHyperparams, TS
 from lsb.ucbdelta import UCBBandit, UCBHyperparams, UCBDelta
 
 def oful():
+    # LinUCB example
     DIM = 3
     SUBGAUSSIAN_R = 0.1
     NO_TIME_STEPS = 100

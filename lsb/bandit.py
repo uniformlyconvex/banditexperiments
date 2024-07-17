@@ -26,6 +26,7 @@ class ActionResult:
         return format(self, ".3f")
     
     def __format__(self, format_spec: str) -> str:
+        # We don't print everything since printing the action/decision set can be very long
         string = (
             f"Reward {self.reward:{format_spec}}, "
             f"Regret {self.regret:{format_spec}}, "
@@ -47,6 +48,8 @@ class DecisionSetBandit(ABC):
     """
     A 'Decision set' bandit. Each time step, the bandit provides a decision set
     which is either a finite set of arms or a constrained subset of R^d.
+    Provides a base class for other bandits to inherit; in particular,
+    subclasses must implement get_decision_set and sample_noise.
     """
     def __init__(self, rng: np.random.Generator, problem_hyperparams: ProblemHyperparams) -> None:
         self._rng = rng

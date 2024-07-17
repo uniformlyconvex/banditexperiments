@@ -11,6 +11,10 @@ class AlgorithmHyperparams:
     pass
 
 class Algorithm(ABC):
+    """
+    Base class for algorithms.
+    Provides a common interface and does some setup.
+    """
     def __init__(
         self,
         rng: np.random.Generator,
